@@ -1,0 +1,17 @@
+student_id,department,semester,study_hours_per_week,gpa,sleep_hours,internet_access
+S1001,Computer,4,14,3.4,7,yes
+S1002,Civil,2,9,3.1,6.5,yes
+S1003,Electronics,4,18,3.7,6,yes
+S1004,Computer,6,12,3.2,7.5,no
+S1005,Electrical,2,8,2.9,8,yes
+S1006,Civil,6,15,3.5,6,yes
+S1007,Computer,4,10,,7,yes
+S1008,Architecture,2,20,3.8,5.5,yes
+S1009,Electronics,6,11,3.0,7,no
+S1010,Electrical,4,16,3.3,6.5,yes
+S1011,Computer,2,7,2.8,8,yes
+S1012,Civil,4,13,3.2,,yes
+S1013,Architecture,6,22,3.9,5,yes
+S1014,Electronics,2,9,2.7,7.5,no
+S1015,Electrical,6,14,3.6,6,yes
+S1004,Computer,6,12,3.2,7.5,no

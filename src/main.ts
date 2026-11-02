@@ -1,60 +1,41 @@
 import './style.css'
-import heroImg from './assets/hero.png'
-import typescriptLogo from './assets/typescript.svg'
-import viteLogo from './assets/vite.svg'
-import { setupCounter } from './counter.ts'
+import {parseCsv} from './features/csv/parse.csv'
+import { validateDataset, validateFile } from './features/csv/validate-csv'
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-<section id="center">
-  <div class="hero">
-    <img src="${heroImg}" class="base" width="170" height="179">
-    <img src="${typescriptLogo}" class="framework" alt="TypeScript logo"/>
-    <img src="${viteLogo}" class="vite" alt="Vite logo" />
-  </div>
-  <div>
-    <h1>Get started</h1>
-    <p>Edit <code>src/main.ts</code> and save to test <code>HMR</code></p>
-  </div>
-  <button id="counter" type="button" class="counter"></button>
-</section>
+const fileInput = document.querySelector<HTMLInputElement>('#csv-input')
+const status = document.querySelector<HTMLParagraphElement>('#status')
 
-<div class="ticks"></div>
+if (!fileInput || !status) {
+  throw new Error('Required HTML elements are missing')
+}
 
-<section id="next-steps">
-  <div id="docs">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#documentation-icon"></use></svg>
-    <h2>Documentation</h2>
-    <p>Your questions, answered</p>
-    <ul>
-      <li>
-        <a href="https://vite.dev/" target="_blank">
-          <img class="logo" src="${viteLogo}" alt="" />
-          Explore Vite
-        </a>
-      </li>
-      <li>
-        <a href="https://www.typescriptlang.org" target="_blank">
-          <img class="button-icon" src="${typescriptLogo}" alt="">
-          Learn more
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#social-icon"></use></svg>
-    <h2>Connect with us</h2>
-    <p>Join the Vite community</p>
-    <ul>
-      <li><a href="https://github.com/vitejs/vite" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#github-icon"></use></svg>GitHub</a></li>
-      <li><a href="https://chat.vite.dev/" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#discord-icon"></use></svg>Discord</a></li>
-      <li><a href="https://x.com/vite_js" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#x-icon"></use></svg>X.com</a></li>
-      <li><a href="https://bsky.app/profile/vite.dev" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#bluesky-icon"></use></svg>Bluesky</a></li>
-    </ul>
-  </div>
-</section>
+fileInput.addEventListener('change', async () => {
+  const file = fileInput.files?.[0]
+  if(!file) return 
 
-<div class="ticks"></div>
-<section id="spacer"></section>
-`
+  const fileProblem = validateFile(file)
+  if(fileProblem) {
+    status.textContent = fileProblem
+    return 
+  }
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+  try {
+    const dataset = await parseCsv(file)
+
+    const problems = validateDataset(dataset)
+    if (problems.length > 0) {
+      status.textContent = problems.join('  ')
+      return
+    }    
+  
+
+  status.textContent = `Loaded ${dataset.fileName}: ${dataset.rows.length} rows, ${dataset.columns.length} columns`
+    console.log('Columns:', dataset.columns)
+    console.table(dataset.rows.slice(0, 5))
+  } catch (error) {
+    status.textContent =
+      error instanceof Error
+        ? `Could not read the file: ${error.message}`
+        : 'Could not read the file.'
+  }
+})
