@@ -1,17 +1,28 @@
 import './style.css'
 import {parseCsv} from './features/csv/parse.csv'
 import { validateDataset, validateFile } from './features/csv/validate-csv'
+import { renderDatasetPreview } from './components/dataset-preview'
 
 const fileInput = document.querySelector<HTMLInputElement>('#csv-input')
 const status = document.querySelector<HTMLParagraphElement>('#status')
+
+//preview container
+const preview = document.querySelector<HTMLElement>('#preview')
+if (!fileInput || !status || !preview) {
+  throw new Error('Required HTML elements are missing')
+}
 
 if (!fileInput || !status) {
   throw new Error('Required HTML elements are missing')
 }
 
+
 fileInput.addEventListener('change', async () => {
   const file = fileInput.files?.[0]
   if(!file) return 
+
+  // clear the old preview
+  preview.replaceChildren()
 
   const fileProblem = validateFile(file)
   if(fileProblem) {
@@ -30,6 +41,8 @@ fileInput.addEventListener('change', async () => {
   
 
   status.textContent = `Loaded ${dataset.fileName}: ${dataset.rows.length} rows, ${dataset.columns.length} columns`
+    // draw the table
+    renderDatasetPreview(preview, dataset) 
     console.log('Columns:', dataset.columns)
     console.table(dataset.rows.slice(0, 5))
   } catch (error) {
