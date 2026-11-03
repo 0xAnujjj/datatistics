@@ -2,6 +2,8 @@ import './style.css'
 import {parseCsv} from './features/csv/parse.csv'
 import { validateDataset, validateFile } from './features/csv/validate-csv'
 import { renderDatasetPreview } from './components/dataset-preview'
+import { profileDataset } from './features/analysis/profile-dataset'
+
 
 const fileInput = document.querySelector<HTMLInputElement>('#csv-input')
 const status = document.querySelector<HTMLParagraphElement>('#status')
@@ -43,6 +45,7 @@ fileInput.addEventListener('change', async () => {
   status.textContent = `Loaded ${dataset.fileName}: ${dataset.rows.length} rows, ${dataset.columns.length} columns`
     // draw the table
     renderDatasetPreview(preview, dataset) 
+    console.table(profileDataset(dataset).columns)
     console.log('Columns:', dataset.columns)
     console.table(dataset.rows.slice(0, 5))
   } catch (error) {
