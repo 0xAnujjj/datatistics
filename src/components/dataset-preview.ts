@@ -36,12 +36,12 @@ export function renderDatasetPreview(
         }
     }
 
-      // Wrapper lets wide tables scroll sideways instead of breaking the layout
-  const wrapper = document.createElement('div')
-  wrapper.className = 'table-wrapper'
-  wrapper.appendChild(table)
+    // Wrapper lets wide tables scroll sideways instead of breaking the layout
+    const wrapper = document.createElement('div')
+    wrapper.className = 'table-wrapper'
+    wrapper.appendChild(table)
 
-  container.append(heading, note, wrapper)
+    container.append(heading, note, wrapper)
 }
 
 
