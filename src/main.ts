@@ -3,7 +3,7 @@ import {parseCsv} from './features/csv/parse.csv'
 import { validateDataset, validateFile } from './features/csv/validate-csv'
 import { renderDatasetPreview } from './components/dataset-preview'
 import { profileDataset } from './features/analysis/profile-dataset'
-
+import { findDuplicates } from './features/analysis/find-duplicates'
 
 const fileInput = document.querySelector<HTMLInputElement>('#csv-input')
 const status = document.querySelector<HTMLParagraphElement>('#status')
@@ -45,7 +45,24 @@ fileInput.addEventListener('change', async () => {
   status.textContent = `Loaded ${dataset.fileName}: ${dataset.rows.length} rows, ${dataset.columns.length} columns`
     // draw the table
     renderDatasetPreview(preview, dataset) 
-    console.table(profileDataset(dataset).columns)
+
+    // detect col. types and missing vals.
+    // console.table(profileDataset(dataset).columns)
+    const profile = profileDataset(dataset)
+
+  console.table(
+    profile.columns
+      .filter((column) => column.numericStats)
+      .map((column) => ({ name: column.name, ...column.numericStats })),
+  )
+  console.log(
+      'Top values:',
+      profile.columns
+      .filter((column) => column.topValues)
+      .map((column) => ({ name: column.name, top: column.topValues })),
+  )
+    console.log('Duplicates:', findDuplicates(dataset))
+
     console.log('Columns:', dataset.columns)
     console.table(dataset.rows.slice(0, 5))
   } catch (error) {

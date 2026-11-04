@@ -1,4 +1,4 @@
-age,sex,SysBP,DiaBP,HR,weightKg,heightCm,BMI,indication
+row_index, age,sex,SysBP,DiaBP,HR,weightKg,heightCm,BMI,indication
 0,64,1,141,96,128,69,147,32.0,1
 1,21,1,109,100,106,48,150,21.0,0
 2,30,0,112,73,126,69,183,21.0,0

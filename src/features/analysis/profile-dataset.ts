@@ -5,6 +5,10 @@ import type {
     DatasetProfile,
 } from '../../types/analysis'
 
+    import { calculateNumericStats,
+    getTopValues,
+} from './calculate-statistics'
+
 // chosen rules
 const MISSING_TOKENS = new Set(['', 'na', 'n/a', 'nan', 'null'])
 const BOOLEAN_TOKENS = new Set(['true', 'false', 'yes', 'no'])
@@ -49,15 +53,20 @@ export function profileDataset(dataset: Dataset): DatasetProfile {
     const values = dataset.rows.map((row) => row[name] ?? '')
     const present = values.filter((value) => !isMissing(value))
     const missingCount = values.length - present.length
-
+    const type = detectColumnType(values)
+    
     return {
         name,
-        type: detectColumnType(values),
+        type,
         totalCount: values.length,
         missingCount,
         missingPercent:
-        values.length === 0 ? 0 : (missingCount / values.length) * 100,
+         values.length === 0 ? 0 : (missingCount / values.length) * 100,
         uniqueCount: new Set(present.map((value) => value.trim())).size,
+        numericStats:
+            type === 'number' ? (calculateNumericStats(present) ?? undefined) : undefined,
+        topValues:
+            type === 'text' || type === 'boolean' ? getTopValues(present) : undefined,
     }
 })
 
