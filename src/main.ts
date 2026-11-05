@@ -1,20 +1,17 @@
 import './style.css'
 import {parseCsv} from './features/csv/parse.csv'
-import { validateDataset, validateFile } from './features/csv/validate-csv'
+import { validateDataset, validateFile, getParseWarning } from './features/csv/validate-csv'
 import { renderDatasetPreview } from './components/dataset-preview'
 import { profileDataset } from './features/analysis/profile-dataset'
 import { findDuplicates } from './features/analysis/find-duplicates'
 
+
 const fileInput = document.querySelector<HTMLInputElement>('#csv-input')
 const status = document.querySelector<HTMLParagraphElement>('#status')
-
-//preview container
 const preview = document.querySelector<HTMLElement>('#preview')
-if (!fileInput || !status || !preview) {
-  throw new Error('Required HTML elements are missing')
-}
+const warning = document.querySelector<HTMLParagraphElement>('#warning')
 
-if (!fileInput || !status) {
+if (!fileInput || !status || !preview || !warning) {
   throw new Error('Required HTML elements are missing')
 }
 
@@ -25,6 +22,9 @@ fileInput.addEventListener('change', async () => {
 
   // clear the old preview
   preview.replaceChildren()
+
+  warning.textContent = ''
+  
 
   const fileProblem = validateFile(file)
   if(fileProblem) {
@@ -43,6 +43,7 @@ fileInput.addEventListener('change', async () => {
   
 
   status.textContent = `Loaded ${dataset.fileName}: ${dataset.rows.length} rows, ${dataset.columns.length} columns`
+  warning.textContent = getParseWarning(dataset) ?? ''
     // draw the table
     renderDatasetPreview(preview, dataset) 
 

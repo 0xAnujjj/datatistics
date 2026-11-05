@@ -9,13 +9,19 @@ export async function parseCsv(file: File): Promise<Dataset> {
         skipEmptyLines: true
     })
     
-    if(results.errors.length > 0) {
-        console.warn('CSV parse warning:', results.errors)
+    const countsByCode: Record<string, number>  = {}
+    const affectedRows = new Set<number>()
+
+    for (const error of results.errors) {
+        countsByCode[error.code] = (countsByCode[error.code] ?? 0) + 1
+        if (error.row !== undefined) affectedRows.add(error.row)
+
     }
 
     return {
         fileName: file.name,
         columns: results.meta.fields ?? [],
-        rows: results.data
+        rows: results.data,
+        parseIssues: { affectedRowCount: affectedRows.size, countsByCode },
     }
 }
