@@ -14,6 +14,7 @@ const MISSING_TOKENS = new Set(['', 'na', 'n/a', 'nan', 'null'])
 const BOOLEAN_TOKENS = new Set(['true', 'false', 'yes', 'no'])
 const NUMBER_PATTERN = /^[+-]?(\d+\.?\d*|\.\d+)$/
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+const MAX_UNIQUE_FOR_CATEGORY = 10
 
 // for stats. part
 export function isMissing(value:string | undefined): boolean {
@@ -54,6 +55,11 @@ export function profileDataset(dataset: Dataset): DatasetProfile {
     const present = values.filter((value) => !isMissing(value))
     const missingCount = values.length - present.length
     const type = detectColumnType(values)
+    const uniqueCount = new Set(present.map((value) => value.trim())).size
+    const looksCategorical =
+    type === 'text' ||
+    type === 'boolean' ||
+    (type === 'number' && uniqueCount <= MAX_UNIQUE_FOR_CATEGORY)
     
     return {
         name,
@@ -62,11 +68,10 @@ export function profileDataset(dataset: Dataset): DatasetProfile {
         missingCount,
         missingPercent:
          values.length === 0 ? 0 : (missingCount / values.length) * 100,
-        uniqueCount: new Set(present.map((value) => value.trim())).size,
+        uniqueCount,
         numericStats:
             type === 'number' ? (calculateNumericStats(present) ?? undefined) : undefined,
-        topValues:
-            type === 'text' || type === 'boolean' ? getTopValues(present) : undefined,
+        topValues: looksCategorical ? getTopValues(present) : undefined,
     }
 })
 

@@ -1,35 +1,44 @@
 import './style.css'
-import {parseCsv} from './features/csv/parse.csv'
-import { validateDataset, validateFile, getParseWarning } from './features/csv/validate-csv'
-import { renderDatasetPreview } from './components/dataset-preview'
+import { parseCsv } from './features/csv/parse-csv'
+import {
+  validateDataset,
+  validateFile,
+  getParseWarning,
+} from './features/csv/validate-csv'
 import { profileDataset } from './features/analysis/profile-dataset'
 import { findDuplicates } from './features/analysis/find-duplicates'
+import { renderDatasetPreview } from './components/dataset-preview'
+import { renderSummaryCards } from './components/summary-cards'
+import { renderDataQualityPanel } from './components/data-quality-panel'
+import { renderColumnStatistics } from './components/column-statistics'
+import { getElement } from './utils/dom'
 
+const fileInput = getElement<HTMLInputElement>('#csv-input')
+const status = getElement<HTMLParagraphElement>('#status')
+const warning = getElement<HTMLParagraphElement>('#warning')
+const summary = getElement<HTMLElement>('#summary')
+const preview = getElement<HTMLElement>('#preview')
+const quality = getElement<HTMLElement>('#quality')
+const statistics = getElement<HTMLElement>('#statistics')
 
-const fileInput = document.querySelector<HTMLInputElement>('#csv-input')
-const status = document.querySelector<HTMLParagraphElement>('#status')
-const preview = document.querySelector<HTMLElement>('#preview')
-const warning = document.querySelector<HTMLParagraphElement>('#warning')
-
-if (!fileInput || !status || !preview || !warning) {
-  throw new Error('Required HTML elements are missing')
+function clearResults(): void {
+  status.textContent = ''
+  warning.textContent = ''
+  for (const container of [summary, preview, quality, statistics]) {
+    container.replaceChildren()
+  }
 }
-
 
 fileInput.addEventListener('change', async () => {
   const file = fileInput.files?.[0]
-  if(!file) return 
+  if (!file) return
 
-  // clear the old preview
-  preview.replaceChildren()
-
-  warning.textContent = ''
-  
+  clearResults()
 
   const fileProblem = validateFile(file)
-  if(fileProblem) {
+  if (fileProblem) {
     status.textContent = fileProblem
-    return 
+    return
   }
 
   try {
@@ -37,35 +46,20 @@ fileInput.addEventListener('change', async () => {
 
     const problems = validateDataset(dataset)
     if (problems.length > 0) {
-      status.textContent = problems.join('  ')
+      status.textContent = problems.join(' ')
       return
-    }    
-  
+    }
 
-  status.textContent = `Loaded ${dataset.fileName}: ${dataset.rows.length} rows, ${dataset.columns.length} columns`
-  warning.textContent = getParseWarning(dataset) ?? ''
-    // draw the table
-    renderDatasetPreview(preview, dataset) 
-
-    // detect col. types and missing vals.
-    // console.table(profileDataset(dataset).columns)
     const profile = profileDataset(dataset)
+    const duplicates = findDuplicates(dataset)
 
-  console.table(
-    profile.columns
-      .filter((column) => column.numericStats)
-      .map((column) => ({ name: column.name, ...column.numericStats })),
-  )
-  console.log(
-      'Top values:',
-      profile.columns
-      .filter((column) => column.topValues)
-      .map((column) => ({ name: column.name, top: column.topValues })),
-  )
-    console.log('Duplicates:', findDuplicates(dataset))
+    status.textContent = `Loaded ${dataset.fileName}: ${dataset.rows.length} rows, ${dataset.columns.length} columns`
+    warning.textContent = getParseWarning(dataset) ?? ''
 
-    console.log('Columns:', dataset.columns)
-    console.table(dataset.rows.slice(0, 5))
+    renderSummaryCards(summary, profile, duplicates)
+    renderDatasetPreview(preview, dataset)
+    renderDataQualityPanel(quality, profile, duplicates)
+    renderColumnStatistics(statistics, profile)
   } catch (error) {
     status.textContent =
       error instanceof Error
