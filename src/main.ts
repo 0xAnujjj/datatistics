@@ -25,7 +25,7 @@ const quality = getElement<HTMLElement>('#quality')
 const statistics = getElement<HTMLElement>('#statistics')
 const charts = getElement<HTMLElement>('#charts')
 const findings = getElement<HTMLElement>('#findings')
-
+const sampleButton = getElement<HTMLButtonElement>('#sample-button')
 
 function clearResults(): void {
   destroyChart()
@@ -36,9 +36,9 @@ function clearResults(): void {
   }
 }
 
-fileInput.addEventListener('change', async () => {
-  const file = fileInput.files?.[0]
-  if (!file) return
+
+
+async function analyzeFile(file: File): Promise<void> {
 
   clearResults()
 
@@ -75,4 +75,27 @@ fileInput.addEventListener('change', async () => {
         ? `Could not read the file: ${error.message}`
         : 'Could not read the file.'
   }
+}
+
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files?.[0]
+  if (file) void analyzeFile(file)
 })
+
+sampleButton.addEventListener('click', async () => {
+  try {
+    const response = await fetch(
+      `${import.meta.env.BASE_URL}samples/student-survey.csv`,
+    )
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const blob = await response.blob()
+
+    fileInput.value = '' // lets the user pick a file afterwards without a stale name
+    await analyzeFile(
+      new File([blob], 'student-survey.csv', { type: 'text/csv' }),
+    )
+  } catch {
+    clearResults()
+    status.textContent = 'Could not load the sample data.'
+  }
+}) 

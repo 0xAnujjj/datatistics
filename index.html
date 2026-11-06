@@ -3,22 +3,43 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Datatistics: a privacy-first CSV analyzer. Your file never leaves your browser."
+    />
     <title>Datatistics</title>
   </head>
   <body>
     <main id="app">
-      <h1>Datatistics</h1>
-      <p>Understand data. Discover insights.</p>
-      <input type="file" id="csv-input" accept=".csv" />
-      <p id="status"></p>
-      <p id="warning" class="warning"></p>
+      <header>
+        <h1>Datatistics</h1>
+        <p class="tagline">
+          Understand data. Discover insights.
+        </p>
+      </header>
+
+      <div class="controls">
+        <input type="file" id="csv-input" accept=".csv" aria-label="Choose a CSV file" />
+        <button type="button" id="sample-button">Try sample data</button>
+      </div>
+
+      <p id="status" role="status"></p>
+      <p id="warning"></p>
+
       <section id="summary"></section>
       <section id="findings"></section>
       <section id="charts"></section>
       <section id="preview"></section>
       <section id="quality"></section>
       <section id="statistics"></section>
-    </main> 
+
+      <footer>
+        <p>
+          Hackathon prototype, not production software. Sample data is synthetic.
+          Built with PapaParse and Chart.js.
+        </p>
+      </footer>
+    </main>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
