@@ -36,3 +36,9 @@ export interface DatasetProfile {
     columnCount: number
     columns: ColumnProfile[]
 }
+
+export interface Insight  {
+    severity: 'info' | 'warning'
+    text: string
+}
+
