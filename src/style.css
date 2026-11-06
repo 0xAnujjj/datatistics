@@ -62,3 +62,12 @@ section {
   color: #555;
   font-size: 0.9rem;
 }
+
+.chart-controls {
+  margin: 0.75rem 0;
+}
+
+.chart-box {
+  position: relative;
+  height: 320px;
+}

@@ -12,6 +12,7 @@ import { renderSummaryCards } from './components/summary-cards'
 import { renderDataQualityPanel } from './components/data-quality-panel'
 import { renderColumnStatistics } from './components/column-statistics'
 import { getElement } from './utils/dom'
+import { renderChartPanel, destroyChart } from './components/chart-panel'
 
 const fileInput = getElement<HTMLInputElement>('#csv-input')
 const status = getElement<HTMLParagraphElement>('#status')
@@ -20,11 +21,13 @@ const summary = getElement<HTMLElement>('#summary')
 const preview = getElement<HTMLElement>('#preview')
 const quality = getElement<HTMLElement>('#quality')
 const statistics = getElement<HTMLElement>('#statistics')
+const charts = getElement<HTMLElement>('#charts')
 
 function clearResults(): void {
+  destroyChart()
   status.textContent = ''
   warning.textContent = ''
-  for (const container of [summary, preview, quality, statistics]) {
+  for (const container of [summary, charts, preview, quality, statistics]) {
     container.replaceChildren()
   }
 }
@@ -57,6 +60,7 @@ fileInput.addEventListener('change', async () => {
     warning.textContent = getParseWarning(dataset) ?? ''
 
     renderSummaryCards(summary, profile, duplicates)
+    renderChartPanel(charts, dataset, profile)
     renderDatasetPreview(preview, dataset)
     renderDataQualityPanel(quality, profile, duplicates)
     renderColumnStatistics(statistics, profile)
